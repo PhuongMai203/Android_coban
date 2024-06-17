@@ -41,22 +41,19 @@ public class Thongke extends AppCompatActivity {
         recyclerView = findViewById(R.id.lvthongkenv);
         tvHighestSalary = findViewById(R.id.tvHighestSalary);
 
-        // Khởi tạo SQLite Database
         db = openOrCreateDatabase("nhanvien.db", MODE_PRIVATE, null);
 
-        // Khởi tạo RecyclerView
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         nhanVienList = new ArrayList<>();
         adapter = new CustomAdapter(this, nhanVienList);
-        recyclerView.setAdapter(adapter);
 
-        // Thiết lập Spinner
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(
                 this, R.array.time_periods, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerTimePeriod.setAdapter(spinnerAdapter);
 
-        // Xử lý sự kiện khi nhấn nút "Thống kê"
+
         btnGenerateReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

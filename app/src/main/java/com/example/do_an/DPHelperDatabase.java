@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 public class DPHelperDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 4;
     private static final String TABLE_NHANVIEN = "NHANVIEN";
     private static final String DATABASE_NAME = "managenhanviens.db";
 
@@ -18,15 +18,7 @@ public class DPHelperDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String sqltext = "CREATE TABLE NHANVIEN("
-                + "CREATE TABLE NHANVIEN("
-                + "MaNV TEXT PRIMARY KEY, "
-                + "TenNV TEXT, "
-                + "ChucVu TEXT, "
-                + "SDT TEXT, "
-                + "Luongcb TEXT, "
-                + "PhongBan TEXT, "
-                + "AnhNV TEXT);\n"
+        String sqltext = "CREATE TABLE NHANVIEN(MaNV TEXT PRIMARY KEY,TenNV TEXT,ChucVu TEXT,SDT TEXT,Luongcb TEXT,PhongBan TEXT,AnhNV TEXT);\n"
                 + "INSERT INTO NHANVIEN VALUES('001', 'Nguyễn Văn Hoàng', 'Giám đốc', 0123456789, 50000000,'Phòng tài chính'," + R.drawable.hinh1 + ");\n"
                 + "INSERT INTO NHANVIEN VALUES('002', 'Nguyễn Hương ', 'Trưởng phòng', '0987654321', 40000000,'Phòng kinh doanh', " + R.drawable.hinh2 + ");\n"
                 + "INSERT INTO NHANVIEN VALUES('003', 'Hồ Minh Anh', 'Quản lý', 0123984756, 30000000,'Phòng kinh doanh', " + R.drawable.hinh3 + ");\n"

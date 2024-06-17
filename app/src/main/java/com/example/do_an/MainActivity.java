@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
         btn_nhanvien.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Chuyển hướng sang activity quản lý nhân viên (ActivityQuanLyNhanVien)
+
                 Intent intent = new Intent(MainActivity.this, QLNhanVien.class);
                 startActivity(intent);
             }
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         btn_luongnv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Chuyển hướng sang activity quản lý nhân viên (ActivityQuanLyNhanVien)
+
                 Intent intent = new Intent(MainActivity.this, LuongNV.class);
                 startActivity(intent);
             }
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         btn_baocao.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Chuyển hướng sang activity quản lý nhân viên (ActivityQuanLyNhanVien)
+
                 Intent intent = new Intent(MainActivity.this, Thongke.class);
                 startActivity(intent);
             }

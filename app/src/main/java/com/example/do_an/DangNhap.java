@@ -9,7 +9,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class DangNhap extends AppCompatActivity {
-    // Khai báo các hằng số ở mức lớp
     private static final String DEFAULT_EMAIL = "1";
     private static final String DEFAULT_PASSWORD = "1";
 
@@ -31,9 +30,9 @@ public class DangNhap extends AppCompatActivity {
                 if (email.equals(DEFAULT_EMAIL) && password.equals(DEFAULT_PASSWORD)) {
                     // Đăng nhập thành công
                     Intent intent = new Intent(DangNhap.this, MainActivity.class);
+                    Toast.makeText(DangNhap.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
                     startActivity(intent);
                 } else {
-                    // Đăng nhập thất bại
                     Toast.makeText(DangNhap.this, "Email hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show();
                 }
             }

@@ -7,11 +7,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,58 +24,47 @@ import com.example.do_an.model.NhanVien;
 
 import java.util.ArrayList;
 
-public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
+public class CustomAdapter extends ArrayAdapter<NhanVien> {
 
-    private final Context context;
+    private final Activity context;
     private final ArrayList<NhanVien> nhanvienList;
 
-    public CustomAdapter(Context context, ArrayList<NhanVien> nhanvienList) {
-        this.context = context;
-        this.nhanvienList = nhanvienList;
-    }
-
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.activity_custom_adapter, parent, false);
-        return new ViewHolder(itemView);
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        NhanVien nhanvien = nhanvienList.get(position);
-
-        holder.manv.setText(nhanvien.getMaNV());
-        holder.tennv.setText(nhanvien.getTenNV());
-        holder.chucvu.setText(nhanvien.getChucvu());
-        // Đặt hình ảnh từ resource ID trực tiếp
-        holder.imganhnv.setImageResource(nhanvien.getAnhNV());
-
-        holder.btn_chitiet.setOnClickListener(v -> openDetailsActivity(nhanvien));
-        holder.btn_xoa.setOnClickListener(v -> showDialogConfirm(nhanvien, position));
-    }
-
-
-    @Override
-    public int getItemCount() {
-        return nhanvienList.size();
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView manv, tennv, chucvu;
+    public TextView manv, tennv, chucvu;
         public ImageView imganhnv;
         public Button btn_chitiet, btn_xoa;
 
-        public ViewHolder(View view) {
-            super(view);
-            manv = view.findViewById(R.id.txt_ma);
-            tennv = view.findViewById(R.id.txt_ten);
-            chucvu = view.findViewById(R.id.txt_cv);
-            imganhnv = view.findViewById(R.id.imganhnv);
-            btn_chitiet = view.findViewById(R.id.btn_ct);
-            btn_xoa = view.findViewById(R.id.btndelete);
-        }
+    public CustomAdapter(Activity context, ArrayList<NhanVien> nhanvienList2) {
+        super(context, R.layout.activity_custom_adapter, nhanvienList2);
+        this.context = context;
+        this.nhanvienList = nhanvienList2;
     }
+
+    public View getView(int position, View view, ViewGroup parent){
+        LayoutInflater inflater = context.getLayoutInflater();
+        View rowView = inflater.inflate(R.layout.activity_custom_adapter,null, true);
+        NhanVien nhanvien = nhanvienList.get(position);
+
+        manv = rowView.findViewById(R.id.txt_ma);
+        tennv = rowView.findViewById(R.id.txt_ten);
+        chucvu = rowView.findViewById(R.id.txt_cv);
+        imganhnv = rowView.findViewById(R.id.imganhnv);
+        btn_chitiet = rowView.findViewById(R.id.btn_ct);
+        btn_xoa = rowView.findViewById(R.id.btndelete);
+
+        manv.setText(nhanvien.getMaNV());
+        tennv.setText(nhanvien.getTenNV());
+        chucvu.setText(nhanvien.getChucvu());
+        imganhnv.setImageResource(nhanvien.getAnhNV());
+        btn_xoa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDialogConfirm(nhanvien, position);
+            }
+        });
+
+        btn_chitiet.setOnClickListener(v -> openDetailsActivity(nhanvien));
+        return rowView;
+    };
 
     private void openDetailsActivity(NhanVien nhanvien) {
         Intent intent = new Intent(context, ChiTietNV.class);
@@ -103,12 +94,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     private void deleteNhanVien(String maNV, int position) {
         try {
             String sql = "DELETE FROM NHANVIEN WHERE MaNV = '" + maNV + "'";
-            SQLiteDatabase db = context.openOrCreateDatabase("nhanvien.db", Context.MODE_PRIVATE, null);
+            SQLiteDatabase db = context.openOrCreateDatabase("managenhanviens.db", Context.MODE_PRIVATE, null);
             db.execSQL(sql);
             db.close();
             nhanvienList.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, nhanvienList.size());
+            notifyDataSetChanged();
             Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Toast.makeText(context, "Không thành công", Toast.LENGTH_SHORT).show();

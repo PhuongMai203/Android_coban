@@ -32,7 +32,7 @@ public class LuongNV extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_luong_nv);
 
-        // Ánh xạ các thành phần từ layout
+
         edtLuongCB = findViewById(R.id.edtLuongCB);
         edtSoNgayLam = findViewById(R.id.edtSoNgayLam);
         btnTinhLuong = findViewById(R.id.btnTinhLuong);
@@ -84,11 +84,10 @@ public class LuongNV extends AppCompatActivity {
         edtLuongCB.addTextChangedListener(watcher);
         edtSoNgayLam.addTextChangedListener(watcher);
         String luongCBStr = edtLuongCB.getText().toString().trim();
-// Xóa ký tự "vnd" từ chuỗi luongCBStr
+
         luongCBStr = luongCBStr.replaceAll("[^\\d.]", "");
     }
 
-    // Phương thức để load danh sách tên nhân viên từ CSDL
     private void loadTenNVFromDatabase() {
         try {
             db = openOrCreateDatabase("nhanvien.db", MODE_PRIVATE, null);

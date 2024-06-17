@@ -5,17 +5,18 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.model.NhanVien;
 
@@ -27,7 +28,7 @@ public class QLNhanVien extends AppCompatActivity {
     SQLiteDatabase db;
     DPHelperDatabase dbh;
     Toolbar toolbar;
-    RecyclerView lvnv;
+    ListView lvnv;
     EditText txts;
     Cursor cs;
 
@@ -36,49 +37,67 @@ public class QLNhanVien extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qlnhan_vien);
 
-        // Thiết lập Toolbar
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Danh sách nhân viên");
         toolbar.setBackgroundColor(Color.parseColor("#FFFFD8E4"));
         setSupportActionBar(toolbar);
 
-        lvnv = findViewById(R.id.lvthongkenv);
-        txts = findViewById(R.id.txts);
 
-        // Khởi tạo DPHelperDatabase
+        initView();
         dbh = new DPHelperDatabase(this);
-        initDB();
+        cs = dbh.initRecordFistDB();
+        showDATA();
+    }
 
-        // Khởi tạo danh sách nhanvien
-        nhanvien = new ArrayList<>();
-
-        // Tạo cơ sở dữ liệu và thêm dữ liệu mẫu
-        createNhanVienDatabase();
-
-        // Lấy dữ liệu từ cơ sở dữ liệu và thêm vào danh sách nhanvien
-        loadDataFromDatabase();
-//        showDataListView();
-
-        // Khởi tạo adapter và thiết lập cho RecyclerView
-        adapter = new CustomAdapter(this, nhanvien);
-        lvnv.setLayoutManager(new LinearLayoutManager(this));
-        lvnv.setAdapter(adapter);
+    void initView(){
+        lvnv = findViewById(R.id.lvnv);
+        txts = (EditText) findViewById(R.id.txtsearch);
 
         txts.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-//                showDataListView();
+                showDATA();
                 return false;
             }
         });
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == 200){
+            showDATA();
+        }
+    }
+
+    private void showDATA(){
+        db = dbh.ketNoiDBRead();
+        String s = txts.getText().toString();
+        nhanvien = new ArrayList<>();
+
+        String query = "SELECT * FROM NHANVIEN where MaNV like '%" + s + "%' or TenNV like '%" + s + "%'";
+        Log.d("SQL_QUERY", s);
+        Cursor cursor = db.rawQuery("SELECT * FROM NHANVIEN where manv like '%"+s+"%' or tennv like '%"+s+"%'", null);
+        try {
+            while (cursor.moveToNext()) {
+                NhanVien b=new NhanVien(cursor.getString(0),cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4),cursor.getString(5), Integer.parseInt(cursor.getString(6)));
+                nhanvien.add(b);
+                adapter = new CustomAdapter(this, nhanvien);
+                lvnv.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+            }
+
+
+        } finally {
+            cursor.close();
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_add) {
-            // Chuyển đến màn hình Add_NhanVien khi người dùng nhấn vào nút Add trên Toolbar
-            startActivity(new Intent(QLNhanVien.this, Add_NhanVien.class));
+            Intent in = new Intent(getApplicationContext(), Add_NhanVien.class);
+            startActivityForResult(in, 200);
             Toast.makeText(this, "Thêm mới nhân viên", Toast.LENGTH_SHORT).show();
             return true;
         }
@@ -89,34 +108,6 @@ public class QLNhanVien extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
-    }
-
-    public void createNhanVienDatabase() {
-        String sqltext = "DROP TABLE IF EXISTS NHANVIEN;\n"
-                + "CREATE TABLE NHANVIEN("
-                + "MaNV TEXT PRIMARY KEY, "
-                + "TenNV TEXT, "
-                + "ChucVu TEXT, "
-                + "SDT TEXT, "
-                + "Luongcb TEXT, "
-                + "PhongBan TEXT, "
-                + "AnhNV INTEGER);\n"
-                + "INSERT INTO NHANVIEN VALUES('001', 'Nguyễn Văn Hoàng', 'Giám đốc', 0123456789, 50000000,'Phòng tài chính'," + R.drawable.hinh1 + ");\n"
-                + "INSERT INTO NHANVIEN VALUES('002', 'Nguyễn Hương ', 'Trưởng phòng', '0987654321', 40000000,'Phòng kinh doanh', " + R.drawable.hinh2 + ");\n"
-                + "INSERT INTO NHANVIEN VALUES('003', 'Hồ Minh Anh', 'Quản lý', 0123984756, 30000000,'Phòng kinh doanh', " + R.drawable.hinh3 + ");\n"
-                + "INSERT INTO NHANVIEN VALUES('004', 'Trương Thị Thanh Mai', 'Thư ký', 0192837465, 25000000,'Phòng kinh doanh', " + R.drawable.hinh4 + ");"
-                + "INSERT INTO NHANVIEN VALUES('005', 'Nguyễn Thành Quang', 'Phó giám đốc', 0093456789, 45000000,'Phòng tài chính'," + R.drawable.hinh1 + ");\n"
-                + "INSERT INTO NHANVIEN VALUES('006', 'Đặng Trần Mỹ Duyên', 'Nhân viên chính thức ', '0764654321', 15000000,'Phòng kế hoach', " + R.drawable.hinh2 + ");\n"
-                + "INSERT INTO NHANVIEN VALUES('007', 'Dương Thuỳ Trang', 'Nhân viên thử việc', 0888984756, 10000000,'Phòng kế hoach', " + R.drawable.hinh3 + ");\n"
-                + "INSERT INTO NHANVIEN VALUES('008', 'Trần Phương Thuỷ', 'Nhân viên chính thức', 0678984756, 15000000,'Phòng kế hoach', " + R.drawable.hinh3 + ");\n"
-                + "INSERT INTO NHANVIEN VALUES('009', 'Vũ Mỹ Quyên', 'Nhân viên chính thức', 0598837465, 15000000,'Kế toán', " + R.drawable.hinh4 + ");";
-
-        // Tạo DB và thực hiện một số câu SQL
-        SQLiteDatabase db = openOrCreateDatabase("nhanvien.db", MODE_PRIVATE, null);
-        for (String sql : sqltext.split("\n")) {
-            db.execSQL(sql);
-        }
-        db.close();
     }
 
     private void loadDataFromDatabase() {
@@ -141,44 +132,4 @@ public class QLNhanVien extends AppCompatActivity {
         db.close();
     }
 
-    void updateRecord() {
-        // Dummy method to maintain structure. Implement if required.
-    }
-
-    void initDB() {
-        try {
-            db = openOrCreateDatabase("nhanvien.db", MODE_PRIVATE, null);
-            cs = db.rawQuery("SELECT * FROM NHANVIEN", null);
-        } catch (Exception e) {
-            finish();
-        }
-        if (cs != null && cs.moveToFirst()) {
-            updateRecord();
-        }
-    }
-
-//    private void showDataListView() {
-//        nhanvien.clear();
-//        SQLiteDatabase db = dbh.ketNoiDBRead();
-//        String s = txts.getText().toString();
-//        nhanvien = new ArrayList<>();
-//        Cursor cursor = db.rawQuery("SELECT * FROM NHANVIEN WHERE TenNV LIKE '%" + s + "%'", null);
-//        if (cursor.moveToFirst()) {
-//            do {
-//                String maNV = cursor.getString(0);
-//                String tenNV = cursor.getString(1);
-//                String chucvu = cursor.getString(2);
-//                String sdt = cursor.getString(3);
-//                String luongcb = cursor.getString(4);
-//                String phongBan = cursor.getString(5);
-//                int anhNV = cursor.getInt(6);
-//
-//                nhanvien.add(new NhanVien(maNV, tenNV, chucvu, sdt, luongcb, phongBan, anhNV));
-//            } while (cursor.moveToNext());
-//        }
-//        cursor.close();
-//        db.close();
-//
-//        adapter.notifyDataSetChanged();
-//    }
 }

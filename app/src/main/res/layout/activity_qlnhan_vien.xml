@@ -15,15 +15,19 @@
         android:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
     <EditText
-        android:id="@+id/txts"
+        android:id="@+id/txtsearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/toolbar"
         android:hint="Search" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/lvthongkenv"
+    <ListView
+        android:id="@+id/lvnv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/txts" />
+        android:layout_height="600dp"
+        android:layout_below="@+id/toolbar"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="58dp"
+        android:layout_marginBottom="10dp" />
+
 </RelativeLayout>
