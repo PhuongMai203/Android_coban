@@ -10,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,10 +21,11 @@ import java.util.ArrayList;
 
 public class LuongNV extends AppCompatActivity {
 
-    private EditText edtLuongCB, edtSoNgayLam;
+    private EditText edtLuongCB, edtSoNgayLam, txthh, txtthue;
     private Button btnTinhLuong;
     private TextView tvKetQua;
     private Spinner spTenNV, spThang;
+    private RadioButton rdle;
     private SQLiteDatabase db;
     private ArrayAdapter<String> tenNVAdapter;
 
@@ -32,13 +34,15 @@ public class LuongNV extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_luong_nv);
 
-
         edtLuongCB = findViewById(R.id.edtLuongCB);
         edtSoNgayLam = findViewById(R.id.edtSoNgayLam);
         btnTinhLuong = findViewById(R.id.btnTinhLuong);
         tvKetQua = findViewById(R.id.tvKetQua);
         spTenNV = findViewById(R.id.tennv);
         spThang = findViewById(R.id.thang);
+        txthh = findViewById(R.id.txthh);
+        txtthue = findViewById(R.id.txtthue);
+        rdle = findViewById(R.id.rdle);
 
         // Khởi tạo và thiết lập Spinner cho danh sách tên nhân viên
         tenNVAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<String>());
@@ -83,9 +87,6 @@ public class LuongNV extends AppCompatActivity {
         // Bắt sự kiện thay đổi trên EditText để tính toán lại khi dữ liệu thay đổi
         edtLuongCB.addTextChangedListener(watcher);
         edtSoNgayLam.addTextChangedListener(watcher);
-        String luongCBStr = edtLuongCB.getText().toString().trim();
-
-        luongCBStr = luongCBStr.replaceAll("[^\\d.]", "");
     }
 
     private void loadTenNVFromDatabase() {
@@ -136,23 +137,46 @@ public class LuongNV extends AppCompatActivity {
         // Lấy dữ liệu từ EditText và Spinner
         String luongCBStr = edtLuongCB.getText().toString().trim();
         String soNgayLamStr = edtSoNgayLam.getText().toString().trim();
+        String hoaHongStr = txthh.getText().toString().trim();
+        String thueStr = txtthue.getText().toString().trim();
 
         // Kiểm tra xem các trường dữ liệu có được nhập đầy đủ không
-        if (luongCBStr.isEmpty() || soNgayLamStr.isEmpty()) {
+        if (luongCBStr.isEmpty() || soNgayLamStr.isEmpty() || hoaHongStr.isEmpty() || thueStr.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        double luongCB = 0.0;
+        int soNgayLam = 0;
+        double hoaHong = 0.0;
+        double thue = 0.0;
+
         // Chuyển đổi dữ liệu nhập vào từ String sang kiểu số
-        double luongCB = Double.parseDouble(luongCBStr);
-        int soNgayLam = Integer.parseInt(soNgayLamStr);
+        try {
+            luongCB = Double.parseDouble(luongCBStr);
+            soNgayLam = Integer.parseInt(soNgayLamStr);
+            hoaHong = Double.parseDouble(hoaHongStr);
+            thue = Double.parseDouble(thueStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Nhập sai định dạng số", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // Tính tổng lương
-        double tongLuong = luongCB * soNgayLam;
+        double tongLuong = luongCB * soNgayLam * hoaHong;
+
+        // Thêm tiền thưởng lễ nếu radio button được chọn
+        if (rdle.isChecked()) {
+            tongLuong += 1000000;
+        }
+
+        // Trừ thuế thu nhập
+        tongLuong -= thue;
 
         // Hiển thị kết quả tính toán
         tvKetQua.setText("Tổng lương: " + tongLuong + " VNĐ");
     }
+
 
     // Watcher để theo dõi sự thay đổi trên EditText
     private TextWatcher watcher = new TextWatcher() {
