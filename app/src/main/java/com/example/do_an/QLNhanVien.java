@@ -21,7 +21,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.do_an.model.NhanVien;
 
 import java.util.ArrayList;
-
+import androidx.fragment.app.FragmentActivity;
 public class QLNhanVien extends AppCompatActivity {
     ArrayList<NhanVien> nhanvien;
     CustomAdapter adapter;
@@ -131,5 +131,6 @@ public class QLNhanVien extends AppCompatActivity {
         cursor.close();
         db.close();
     }
+
 
 }

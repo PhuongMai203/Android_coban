@@ -7,7 +7,7 @@
       </SelectionState>
       <SelectionState runConfigName="DangNhap">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-06-15T17:05:56.324425200Z">
+        <DropdownSelection timestamp="2024-06-19T03:42:25.513968Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Sony Vaio SVS15\.android\avd\Pixel_3a_API_24.avd" />

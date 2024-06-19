@@ -1,10 +1,15 @@
 package com.example.do_an;
-
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -16,7 +21,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class LuongNV extends AppCompatActivity {
@@ -33,6 +43,10 @@ public class LuongNV extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_luong_nv);
+        // Yêu cầu quyền ghi vào bộ nhớ ngoài
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
 
         edtLuongCB = findViewById(R.id.edtLuongCB);
         edtSoNgayLam = findViewById(R.id.edtSoNgayLam);
@@ -139,7 +153,7 @@ public class LuongNV extends AppCompatActivity {
         String soNgayLamStr = edtSoNgayLam.getText().toString().trim();
         String hoaHongStr = txthh.getText().toString().trim();
         String thueStr = txtthue.getText().toString().trim();
-
+        String tenNV = (String) spTenNV.getSelectedItem();
         // Kiểm tra xem các trường dữ liệu có được nhập đầy đủ không
         if (luongCBStr.isEmpty() || soNgayLamStr.isEmpty() || hoaHongStr.isEmpty() || thueStr.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
@@ -175,6 +189,55 @@ public class LuongNV extends AppCompatActivity {
 
         // Hiển thị kết quả tính toán
         tvKetQua.setText("Tổng lương: " + tongLuong + " VNĐ");
+
+        GhiCSV(this, tenNV, luongCB, soNgayLam, hoaHong, thue, tongLuong);
+    }
+
+    // Phương thức để ghi lương vào file CSV
+    public void GhiCSV(Context context, String tenNV, double luongCB, int soNgayLam, double hoaHong, double thue, double tongLuong) {
+        // Kiểm tra và yêu cầu quyền WRITE_EXTERNAL_STORAGE nếu chưa được cấp
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+
+        // Đường dẫn tới thư mục Documents trên bộ nhớ nội bộ
+        File documentsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+        if (!documentsDir.exists()) {
+            documentsDir.mkdirs(); // Tạo thư mục nếu chưa tồn tại
+        }
+
+        File csvFile = new File(documentsDir, "LuongNV.csv");
+        try {
+            FileWriter writer;
+            if (!csvFile.exists()) {
+                csvFile.createNewFile();
+                writer = new FileWriter(csvFile);
+                writer.append("Tên Nhân Viên,Lương Cơ Bản,Số Ngày Làm, Hoa Hồng, Thuế, Tổng Lương\n");
+            } else {
+                writer = new FileWriter(csvFile, true);
+            }
+            writer.append(tenNV)
+                    .append(',')
+                    .append(String.valueOf(luongCB))
+                    .append(',')
+                    .append(String.valueOf(soNgayLam))
+                    .append(',')
+                    .append(String.valueOf(hoaHong))
+                    .append(',')
+                    .append(String.valueOf(thue))
+                    .append(',')
+                    .append(String.valueOf(tongLuong))
+                    .append('\n');
+            writer.flush();
+            writer.close();
+
+            String filePath = csvFile.getAbsolutePath();
+            Log.d("CSVFile", "Đường dẫn tới file CSV: " + filePath);
+            Toast.makeText(context, "Lưu thành công\nĐường dẫn tới file CSV: " + filePath, Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Lưu thất bại", Toast.LENGTH_SHORT).show();
+        }
     }
 
 

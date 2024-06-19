@@ -70,7 +70,7 @@ public class Thongke extends AppCompatActivity {
         cursor.close();
 
         txtkq.setText("Tổng số tiền trả lương: " + tongLuong + " VND");
-        lvnv.setAdapter(null); // Clear ListView
+        lvnv.setAdapter(null);
     }
 
     private void thongKePhongKinhDoanh() {
